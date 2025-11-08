@@ -2,7 +2,9 @@
 import { ChatTab, Interpreter, InterpreterID, Scenario, ScenarioID, UserMode, UserModeID } from '../types';
 import { INTERPRETERS, SCENARIOS, USER_MODES } from '../constants';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Use relative path in production (Vercel), localhost in development
+const API_BASE_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === 'production' ? '' : 'http://localhost:3001');
 
 // System prompts (copied from geminiService.ts)
 const INTERPRETER_PROMPT_TEMPLATE = (

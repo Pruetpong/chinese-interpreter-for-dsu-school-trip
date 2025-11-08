@@ -19,13 +19,21 @@
 - 🎤 **Speech-to-Text**: พูดแทนการพิมพ์
 - 💾 **Save/Load**: บันทึกและโหลดการสนทนา
 
-## 🚀 Run Locally
+## 🚀 Quick Start
 
-### Prerequisites
+### Deploy to Vercel (Production)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Pruetpong/chinese-interpreter-for-dsu-school-trip&env=API_KEY&envDescription=OpenAI%20API%20Key&envLink=https://platform.openai.com/api-keys)
+
+**📖 Complete deployment guide:** See [DEPLOY.md](./DEPLOY.md)
+
+### Run Locally (Development)
+
+#### Prerequisites
 - Node.js (v18 or higher)
 - OpenAI API Key ([Get it here](https://platform.openai.com/api-keys))
 
-### Installation
+#### Installation
 
 1. **Clone the repository:**
    ```bash
@@ -80,17 +88,23 @@ OpenAI API
 ## 📁 Project Structure
 
 ```
+├── api/                      # Vercel Serverless Functions
+│   ├── chat.js              # Chat API endpoint
+│   ├── tts.js               # Text-to-Speech API
+│   ├── transcribe.js        # Speech-to-Text API
+│   └── health.js            # Health check
 ├── server/
-│   └── index.js              # Backend Proxy (Express)
+│   └── index.js             # Express server (local dev)
 ├── services/
-│   └── openaiService.ts      # OpenAI API integration
+│   └── openaiService.ts     # Frontend API client
 ├── components/
-│   ├── MessageBubble.tsx     # Chat UI component
-│   └── icons.tsx             # SVG icons
-├── App.tsx                   # Main application
-├── constants.ts              # Configuration data
-├── types.ts                  # TypeScript types
-└── package.json
+│   ├── MessageBubble.tsx    # Chat UI component
+│   └── icons.tsx            # SVG icons
+├── App.tsx                  # Main application
+├── constants.ts             # Configuration data
+├── types.ts                 # TypeScript types
+├── vercel.json              # Vercel configuration
+└── DEPLOY.md                # Deployment guide
 ```
 
 ## 🔧 Technologies Used
