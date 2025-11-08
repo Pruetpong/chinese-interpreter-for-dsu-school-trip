@@ -1,0 +1,7 @@
+{
+  "name": "Chinese Interpreter for Chengdu",
+  "description": "An AI-powered web application to help Thai visitors communicate in Chinese during their trip to Chengdu. Features multiple specialized interpreters, scenario-based contexts, and various communication modes.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
