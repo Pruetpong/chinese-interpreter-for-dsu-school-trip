@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { INTERPRETERS, SCENARIOS, USER_MODES, MAX_MESSAGES } from './constants';
-import { createChatSession, sendMessage, generateTts, transcribeAudio, ChatSession } from './services/openaiService';
+import { createChatSession, sendMessage, generateTts, transcribeAudio, ChatSession } from './services/netlifyService';
 import { MessageBubble } from './components/MessageBubble';
 import { SendIcon, MicIcon, StopIcon, SaveIcon, LoadIcon, NewChatIcon, ClearIcon, LoadingSpinner } from './components/icons';
 import type { Message, AppSettings, InterpreterID, ScenarioID, UserModeID, Conversation } from './types';
@@ -260,14 +260,13 @@ export default function App() {
             const session = chatSessionsRef.current[tab];
             if (!session) throw new Error("Chat session not initialized");
 
-            let fullResponse = "";
-            for await (const chunk of sendMessage(session, text)) {
-                fullResponse += chunk;
-                setMessages(prev => ({
-                    ...prev,
-                    [tab]: prev[tab].map(m => m.id === botMessageId ? { ...m, text: fullResponse } : m)
-                }));
-            }
+            // Netlify: non-streaming response
+            const fullResponse = await sendMessage(session, text);
+
+            setMessages(prev => ({
+                ...prev,
+                [tab]: prev[tab].map(m => m.id === botMessageId ? { ...m, text: fullResponse } : m)
+            }));
         } catch (error) {
             console.error(error);
             const errorMessage: Message = { id: botMessageId, sender: MessageSender.BOT, text: "ขออภัยค่ะ เกิดข้อผิดพลาดในการสื่อสาร", timestamp: Date.now() };

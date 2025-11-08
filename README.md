@@ -21,11 +21,19 @@
 
 ## 🚀 Quick Start
 
-### Deploy to Vercel (Production)
+### Deploy to Production
+
+#### Option 1: Netlify (Recommended)
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Pruetpong/chinese-interpreter-for-dsu-school-trip)
+
+**📖 Complete guide:** See [DEPLOY_NETLIFY.md](./DEPLOY_NETLIFY.md)
+
+#### Option 2: Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Pruetpong/chinese-interpreter-for-dsu-school-trip&env=API_KEY&envDescription=OpenAI%20API%20Key&envLink=https://platform.openai.com/api-keys)
 
-**📖 Complete deployment guide:** See [DEPLOY.md](./DEPLOY.md)
+**📖 Complete guide:** See [DEPLOY.md](./DEPLOY.md)
 
 ### Run Locally (Development)
 
