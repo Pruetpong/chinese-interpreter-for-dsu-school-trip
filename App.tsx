@@ -1,34 +1,11 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { GoogleGenAI, Chat } from "@google/genai";
 import { INTERPRETERS, SCENARIOS, USER_MODES, MAX_MESSAGES } from './constants';
-import { createChatSession, generateTts, transcribeAudio } from './services/geminiService';
+import { createChatSession, sendMessage, generateTts, transcribeAudio, ChatSession } from './services/openaiService';
 import { MessageBubble } from './components/MessageBubble';
 import { SendIcon, MicIcon, StopIcon, SaveIcon, LoadIcon, NewChatIcon, ClearIcon, LoadingSpinner } from './components/icons';
 import type { Message, AppSettings, InterpreterID, ScenarioID, UserModeID, Conversation } from './types';
 import { MessageSender, ChatTab } from './types';
-
-// Audio decoding utilities
-function decode(base64: string) {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-}
-
-async function decodeAudioData(data: Uint8Array, ctx: AudioContext): Promise<AudioBuffer> {
-  const dataInt16 = new Int16Array(data.buffer);
-  const frameCount = dataInt16.length;
-  const buffer = ctx.createBuffer(1, frameCount, 24000);
-  const channelData = buffer.getChannelData(0);
-  for (let i = 0; i < frameCount; i++) {
-    channelData[i] = dataInt16[i] / 32768.0;
-  }
-  return buffer;
-}
 
 
 const SetupPanel: React.FC<{ onStart: (settings: AppSettings) => void; onLoad: () => void; isCreated: boolean }> = ({ onStart, onLoad, isCreated }) => {
@@ -163,7 +140,7 @@ const ChatPanel: React.FC<{
                             setInput(transcribedText);
                         } catch (error) {
                             console.error('Transcription failed', error);
-                            // Optionally show an error to the user
+                            alert('ขออภัย ไม่สามารถแปลงเสียงเป็นข้อความได้');
                         }
                     };
                     stream.getTracks().forEach(track => track.stop());
@@ -240,12 +217,12 @@ export default function App() {
     });
     const [messageCount, setMessageCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const chatSessionsRef = useRef<Partial<Record<Exclude<ChatTab, ChatTab.SETUP>, Chat>>>({});
+    const chatSessionsRef = useRef<Partial<Record<Exclude<ChatTab, ChatTab.SETUP>, ChatSession>>>({});
     const audioContextRef = useRef<AudioContext | null>(null);
 
     useEffect(() => {
         if (!audioContextRef.current) {
-            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         }
     }, []);
 
@@ -270,7 +247,7 @@ export default function App() {
         if (isLoading || messageCount >= MAX_MESSAGES) return;
 
         const userMessage: Message = { id: Date.now().toString(), sender: MessageSender.USER, text, timestamp: Date.now() };
-        
+
         setMessages(prev => ({ ...prev, [tab]: [...prev[tab], userMessage] }));
         setIsLoading(true);
         setMessageCount(prev => prev + 1);
@@ -280,13 +257,12 @@ export default function App() {
         setMessages(prev => ({ ...prev, [tab]: [...prev[tab], placeholderBotMessage] }));
 
         try {
-            const chat = chatSessionsRef.current[tab];
-            if (!chat) throw new Error("Chat session not initialized");
+            const session = chatSessionsRef.current[tab];
+            if (!session) throw new Error("Chat session not initialized");
 
-            const stream = await chat.sendMessageStream({ message: text });
             let fullResponse = "";
-            for await (const chunk of stream) {
-                fullResponse += chunk.text;
+            for await (const chunk of sendMessage(session, text)) {
+                fullResponse += chunk;
                 setMessages(prev => ({
                     ...prev,
                     [tab]: prev[tab].map(m => m.id === botMessageId ? { ...m, text: fullResponse } : m)
@@ -311,9 +287,8 @@ export default function App() {
     const handlePlayTTS = useCallback(async (text: string) => {
         if (!text || !audioContextRef.current) return;
         try {
-            const base64Audio = await generateTts(text);
-            const audioBytes = decode(base64Audio);
-            const audioBuffer = await decodeAudioData(audioBytes, audioContextRef.current);
+            const arrayBuffer = await generateTts(text);
+            const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
             const source = audioContextRef.current.createBufferSource();
             source.buffer = audioBuffer;
             source.connect(audioContextRef.current.destination);
