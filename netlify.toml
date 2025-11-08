@@ -1,41 +1,16 @@
-# Netlify Configuration
 [build]
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
-# Environment variables (set these in Netlify UI)
-# API_KEY = "your-openai-api-key"
+[build.environment]
+  NODE_VERSION = "18"
 
-# Redirects and rewrites
+[functions]
+  node_bundler = "esbuild"
+  timeout = 10
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-
-# Headers for all routes
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Headers for API routes
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-
-# Node.js version
-[build.environment]
-  NODE_VERSION = "18"
-
-# Function settings
-[functions]
-  node_bundler = "esbuild"
-  # Increase timeout for longer operations (max 10s on free plan, 26s on paid)
-  timeout = 10
