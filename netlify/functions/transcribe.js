@@ -1,4 +1,4 @@
-const OpenAI = require('openai');
+const { createLLMClient, getFallbackClient, getProviderConfig } = require('./llm-config');
 const { File } = require('buffer');
 
 exports.handler = async (event, context) => {
@@ -35,9 +35,26 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const openai = new OpenAI({
-    apiKey: process.env.API_KEY,
-  });
+  const config = getProviderConfig();
+
+  // Use primary provider if it supports Whisper, otherwise use fallback (OpenAI)
+  let whisperClient = null;
+  if (config.supportsWhisper) {
+    whisperClient = createLLMClient(process.env.API_KEY);
+  } else {
+    whisperClient = getFallbackClient();
+    if (!whisperClient) {
+      return {
+        statusCode: 501,
+        headers,
+        body: JSON.stringify({
+          error: 'Speech-to-Text not supported',
+          message: `Current provider (${config.name}) does not support Whisper. Please set OPENAI_API_KEY environment variable for fallback, or switch to OpenAI provider.`
+        }),
+      };
+    }
+    console.log(`[Whisper] Using OpenAI fallback (current provider: ${config.name})`);
+  }
 
   try {
     const { audioData, mimeType } = JSON.parse(event.body);
@@ -58,7 +75,7 @@ exports.handler = async (event, context) => {
       type: mimeType || 'audio/webm'
     });
 
-    const transcription = await openai.audio.transcriptions.create({
+    const transcription = await whisperClient.audio.transcriptions.create({
       file: audioFile,
       model: 'whisper-1',
       language: 'zh', // Support both Chinese and Thai

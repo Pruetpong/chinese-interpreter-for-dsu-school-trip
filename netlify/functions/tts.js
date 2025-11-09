@@ -1,4 +1,4 @@
-const OpenAI = require('openai');
+const { createLLMClient, getFallbackClient, getProviderConfig } = require('./llm-config');
 
 exports.handler = async (event, context) => {
   // CORS headers
@@ -34,9 +34,26 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const openai = new OpenAI({
-    apiKey: process.env.API_KEY,
-  });
+  const config = getProviderConfig();
+
+  // Use primary provider if it supports TTS, otherwise use fallback (OpenAI)
+  let ttsClient = null;
+  if (config.supportsTTS) {
+    ttsClient = createLLMClient(process.env.API_KEY);
+  } else {
+    ttsClient = getFallbackClient();
+    if (!ttsClient) {
+      return {
+        statusCode: 501,
+        headers,
+        body: JSON.stringify({
+          error: 'TTS not supported',
+          message: `Current provider (${config.name}) does not support TTS. Please set OPENAI_API_KEY environment variable for fallback, or switch to OpenAI provider.`
+        }),
+      };
+    }
+    console.log(`[TTS] Using OpenAI fallback (current provider: ${config.name})`);
+  }
 
   try {
     const { text } = JSON.parse(event.body);
@@ -49,7 +66,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const mp3 = await openai.audio.speech.create({
+    const mp3 = await ttsClient.audio.speech.create({
       model: 'tts-1',
       voice: 'nova',
       input: text,

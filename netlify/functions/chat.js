@@ -1,4 +1,4 @@
-const OpenAI = require('openai');
+const { createLLMClient, getProviderConfig, logProviderInfo } = require('./llm-config');
 
 exports.handler = async (event, context) => {
   // CORS headers
@@ -34,9 +34,16 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const openai = new OpenAI({
-    apiKey: process.env.API_KEY,
-  });
+  // Get provider configuration
+  const config = getProviderConfig();
+
+  // Log provider info (for debugging)
+  if (process.env.DEBUG_LLM === 'true') {
+    logProviderInfo();
+  }
+
+  // Create LLM client with provider settings
+  const llmClient = createLLMClient(process.env.API_KEY);
 
   try {
     const { messages, temperature = 0.7 } = JSON.parse(event.body);
@@ -50,8 +57,8 @@ exports.handler = async (event, context) => {
     }
 
     // Non-streaming response for Netlify compatibility
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+    const completion = await llmClient.chat.completions.create({
+      model: config.model,
       messages: messages,
       temperature: temperature,
       stream: false,
