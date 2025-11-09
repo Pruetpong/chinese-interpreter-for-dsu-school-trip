@@ -1,5 +1,7 @@
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Message, MessageSender } from '../types';
 import { SpeakerIcon, LoadingSpinner } from './icons';
 
@@ -41,7 +43,11 @@ const BotMessageContent: React.FC<{ text: string; onPlayTTS: (text: string) => P
 
     if (parts.length < 2) {
         // Fallback for consultation mode or malformed responses
-        return <div className="whitespace-pre-wrap">{text}</div>;
+        return (
+            <div className="prose prose-slate max-w-none prose-headings:font-bold prose-p:my-2 prose-ul:my-2 prose-li:my-1 prose-strong:text-slate-900 prose-em:text-slate-700">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+            </div>
+        );
     }
 
     return (
@@ -58,8 +64,8 @@ const BotMessageContent: React.FC<{ text: string; onPlayTTS: (text: string) => P
                 </button>
             </div>
             <div className="h-px bg-slate-200 my-3"></div>
-            <div className="thai-text bg-slate-100 p-3 border-l-4 border-blue-400 rounded-r-lg">
-                <p className="text-slate-700">{thaiTranslation}</p>
+            <div className="thai-text bg-slate-100 p-3 border-l-4 border-blue-400 rounded-r-lg prose prose-slate max-w-none prose-p:my-1 prose-ul:my-2 prose-li:my-1 prose-strong:text-slate-900 prose-em:text-slate-700">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{thaiTranslation}</ReactMarkdown>
             </div>
             {suggestions.length > 0 && (
                 <div className="suggested-phrases mt-4 p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
