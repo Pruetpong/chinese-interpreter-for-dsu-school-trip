@@ -24,7 +24,7 @@ const SetupPanel: React.FC<{ onStart: (settings: AppSettings) => void; onLoad: (
     return (
         <div className="p-4 md:p-8 space-y-8 max-w-4xl mx-auto w-full">
             <header className="text-center">
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 text-transparent bg-clip-text pb-2">🏮 Chinese Interpreter</h1>
+                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 text-slate-800 bg-clip-text pb-2">🏮 Chinese Interpreter</h1>
                 <p className="text-slate-600 text-lg">ล่ามภาษาจีนสำหรับการเดินทางเฉิงตู</p>
             </header>
 
@@ -32,7 +32,7 @@ const SetupPanel: React.FC<{ onStart: (settings: AppSettings) => void; onLoad: (
                 <h2 className="text-2xl font-bold text-slate-800 border-b pb-3">🎭 เลือกสถานการณ์และโหมด</h2>
                 <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">สถานการณ์การเดินทาง</label>
+                        <label className="block text-sm font-medium text-slate-800 mb-2">สถานการณ์การเดินทาง</label>
                         <select
                             disabled={isCreated}
                             value={settings.scenarioId}
