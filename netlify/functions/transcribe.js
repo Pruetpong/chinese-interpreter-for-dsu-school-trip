@@ -1,10 +1,6 @@
 const OpenAI = require('openai');
 const { File } = require('buffer');
 
-const openai = new OpenAI({
-  apiKey: process.env.API_KEY,
-});
-
 exports.handler = async (event, context) => {
   // CORS headers
   const headers = {
@@ -25,6 +21,23 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ error: 'Method not allowed' }),
     };
   }
+
+  // Check if API key is configured
+  if (!process.env.API_KEY) {
+    console.error('API_KEY environment variable is not set');
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        error: 'Server configuration error',
+        message: 'API_KEY environment variable is not configured. Please set it in Netlify dashboard.'
+      }),
+    };
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.API_KEY,
+  });
 
   try {
     const { audioData, mimeType } = JSON.parse(event.body);

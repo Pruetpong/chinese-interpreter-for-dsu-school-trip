@@ -147,11 +147,30 @@ OpenAI API
 
 ## 🐛 Troubleshooting
 
+### Issue: "ขออภัยค่ะ เกิดข้อผิดพลาดในการสื่อสาร" (Communication Error)
+**Cause**: Missing `API_KEY` environment variable
+
+**Solution**:
+1. Go to Netlify Dashboard → Your site
+2. Navigate to: **Site settings** → **Environment variables**
+3. Click **Add a variable** or **Add variable**
+4. Add the following:
+   - **Key**: `API_KEY`
+   - **Value**: Your OpenAI API key (starts with `sk-...`)
+5. Click **Save**
+6. Go to **Deploys** tab
+7. Click **Trigger deploy** → **Deploy site** to rebuild with the new environment variable
+
+**How to get OpenAI API Key**:
+1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+2. Sign in or create an account
+3. Click **Create new secret key**
+4. Copy the key (it starts with `sk-`)
+5. **Important**: Save it securely - you won't see it again!
+
 ### Issue: "API_KEY is not defined"
 **Solution**:
-1. Go to Netlify Dashboard → Site settings → Build & deploy → Environment
-2. Add `API_KEY` variable
-3. Trigger redeploy: Deploys → Trigger deploy → Deploy site
+Same as above - this error appears in server logs when the environment variable is missing.
 
 ### Issue: "Function invocation failed"
 **Solution**:
