@@ -16,7 +16,7 @@ const PROVIDERS = {
   },
   deepseek: {
     name: 'Deepseek',
-    baseURL: 'https://api.deepseek.com/v1',
+    baseURL: 'https://api.deepseek.com',
     defaultModel: 'deepseek-chat',
     supportsTTS: false,
     supportsWhisper: false,
