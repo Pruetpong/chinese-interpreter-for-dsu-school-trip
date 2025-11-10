@@ -75,13 +75,22 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ content: responseText }),
     };
   } catch (error) {
-    console.error('Chat API error:', error);
+    // Enhanced error logging
+    console.error('=== Chat API Error ===');
+    console.error('Provider:', config.name);
+    console.error('Base URL:', config.baseURL);
+    console.error('Model:', config.model);
+    console.error('Error:', error.message);
+    console.error('Full error:', error);
+
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         error: 'Failed to generate response',
         message: error.message,
+        provider: config.name,
+        model: config.model,
       }),
     };
   }
