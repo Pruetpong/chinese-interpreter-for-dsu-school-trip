@@ -213,7 +213,21 @@ export async function sendMessage(
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Try to get error details from response
+            let errorDetails = '';
+            try {
+                const errorData = await response.json();
+                errorDetails = errorData.message || errorData.error || '';
+                console.error('API Error Response:', errorData);
+            } catch (e) {
+                // If response is not JSON, ignore
+            }
+
+            const errorMessage = errorDetails
+                ? `HTTP ${response.status}: ${errorDetails}`
+                : `HTTP error! status: ${response.status}`;
+
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -225,7 +239,9 @@ export async function sendMessage(
         return fullResponse;
 
     } catch (error) {
-        console.error('Error in sendMessage:', error);
+        console.error('=== Frontend Error in sendMessage ===');
+        console.error('Error:', error);
+        console.error('API Base URL:', API_BASE_URL);
         throw error;
     }
 }

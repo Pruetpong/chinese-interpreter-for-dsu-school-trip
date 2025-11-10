@@ -268,8 +268,39 @@ export default function App() {
                 [tab]: prev[tab].map(m => m.id === botMessageId ? { ...m, text: fullResponse } : m)
             }));
         } catch (error) {
-            console.error(error);
-            const errorMessage: Message = { id: botMessageId, sender: MessageSender.BOT, text: "ขออภัยค่ะ เกิดข้อผิดพลาดในการสื่อสาร", timestamp: Date.now() };
+            console.error('=== Chat Error ===');
+            console.error('Error:', error);
+
+            // Extract detailed error message if available
+            let detailedError = "ขออภัยค่ะ เกิดข้อผิดพลาดในการสื่อสาร";
+
+            if (error instanceof Error) {
+                const errorMsg = error.message.toLowerCase();
+
+                // Provide more specific error messages based on error type
+                if (errorMsg.includes('api_key') || errorMsg.includes('configuration error')) {
+                    detailedError = "⚠️ ตรวจพบปัญหาการตั้งค่า API Key\n\nกรุณาตรวจสอบว่าได้ตั้งค่า API_KEY ใน Environment Variables แล้ว\n\nดูวิธีแก้ไขได้ที่ไฟล์ TROUBLESHOOTING.md";
+                } else if (errorMsg.includes('http 500')) {
+                    detailedError = "⚠️ เซิร์ฟเวอร์เกิดข้อผิดพลาด\n\nอาจเกิดจาก:\n- API Key ไม่ถูกต้อง\n- การตั้งค่า LLM Provider ผิดพลาด\n\nดูรายละเอียดใน Browser Console (กด F12)";
+                } else if (errorMsg.includes('http 401') || errorMsg.includes('unauthorized')) {
+                    detailedError = "🔐 API Key ไม่ถูกต้องหรือหมดอายุ\n\nกรุณาตรวจสอบ API Key ของคุณ";
+                } else if (errorMsg.includes('http 429')) {
+                    detailedError = "⏱️ ใช้งานเกินจำนวนที่กำหนด (Rate Limit)\n\nกรุณารอสักครู่แล้วลองใหม่อีกครั้ง";
+                } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
+                    detailedError = "🌐 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้\n\nกรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
+                } else if (import.meta.env.DEV) {
+                    // Show detailed error in development mode
+                    detailedError = `ขออภัยค่ะ เกิดข้อผิดพลาด\n\n${error.message}\n\nดูรายละเอียดใน Console (กด F12)`;
+                }
+            }
+
+            const errorMessage: Message = {
+                id: botMessageId,
+                sender: MessageSender.BOT,
+                text: detailedError,
+                timestamp: Date.now()
+            };
+
             setMessages(prev => ({
                 ...prev,
                 [tab]: prev[tab].map(m => m.id === botMessageId ? errorMessage : m)
