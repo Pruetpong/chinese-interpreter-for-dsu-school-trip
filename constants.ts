@@ -179,10 +179,10 @@ export const USER_MODES: Record<string, UserMode> = {
     description: "โหมดอาจารย์ - สำหรับครูและบุคลากรทางการศึกษา",
     context: "You are helping educators and school staff who are on an educational study trip. Use professional and respectful language suitable for academic exchanges."
   },
-  traveler: {
-    name: "General Traveler Mode",
-    description: "โหมดนักท่องเที่ยว - สำหรับการท่องเที่ยวทั่วไป",
-    context: "You are helping general travelers. Use practical and friendly language suitable for tourism and daily interactions."
+  student: {
+    name: "Student Mode",
+    description: "โหมดนักเรียน - สำหรับนักเรียนที่ร่วมโครงการแลกเปลี่ยน",
+    context: "You are helping students who are on an educational exchange program to Chengdu. Use friendly, encouraging, and age-appropriate language. Focus on cultural learning, making friends with Chinese students, and educational experiences. Help them communicate confidently while learning about Chinese culture and language."
   }
 };
 
